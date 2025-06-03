@@ -18,13 +18,14 @@ async function fetchNews() {
         $('.ssrcss-1f3cuyq-Promo').each((i, el) => {
             if (i < 5) { // Pega apenas as 5 primeiras notícias
                 const title = $(el).find('h3').text().trim();
-                const link = 'https://www.bbc.com' + $(el).find('a').attr('href');
+                const link = $(el).find('a').attr('href');
+                const completeLink = link.startsWith('http') ? link : 'https://www.bbc.com' + link;
                 const summary = $(el).find('p').text().trim();
 
                 news.push({
                     title,
                     summary,
-                    link,
+                    link: completeLink,
                 });
             }
         });
@@ -39,17 +40,16 @@ async function fetchNews() {
 
 // Configuração do transporte de e-mail
 const transporter = nodemailer.createTransport({
-    host: process.env.EMAIL_HOST,
-    port: process.env.EMAIL_PORT,
-    secure: false,
+    service: 'gmail', // Usando o Gmail como exemplo
     auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
+        user: process.env.EMAIL_USER, // Seu e-mail
+        pass: process.env.EMAIL_PASS, // Sua senha ou aplicativo de senha
     },
 });
 
 // Função para enviar o e-mail com as notícias
 async function sendEmail(news) {
+    console.log('Conteúdo das notícias:', news);
     if (news.length === 0) {
         console.log('Nenhuma notícia para enviar.');
         return;
@@ -65,7 +65,7 @@ async function sendEmail(news) {
     try {
         const info = await transporter.sendMail({
             from: `"Seu Nome" <${process.env.EMAIL_USER}>`,
-            to: 'user@gmail.com',
+            to: 'adagomes60@gmail.com', // Aqui você coloca o destinatário
             subject: 'Últimas Notícias de Literatura - BBC Brasil',
             html: htmlContent,
         });
