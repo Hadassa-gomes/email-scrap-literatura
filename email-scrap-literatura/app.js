@@ -65,7 +65,7 @@ async function sendEmail(news) {
     try {
         const info = await transporter.sendMail({
             from: `"Seu Nome" <${process.env.EMAIL_USER}>`,
-            to: 'adagomes60@gmail.com', // Aqui você coloca o destinatário
+            to: 'user@gmail.com', // Aqui você coloca o destinatário
             subject: 'Últimas Notícias de Literatura - BBC Brasil',
             html: htmlContent,
         });
