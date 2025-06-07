@@ -1,4 +1,5 @@
 require('dotenv').config();
+console.log(process.env.EMAIL_HOST);
 const fetch = require('node-fetch');
 const cheerio = require('cheerio');
 const nodemailer = require('nodemailer');
@@ -14,19 +15,13 @@ async function fetchNews() {
 
         const news = [];
 
-        // Seleciona os blocos de notícias
-        $('.ssrcss-1f3cuyq-Promo').each((i, el) => {
-            if (i < 5) { // Pega apenas as 5 primeiras notícias
-                const title = $(el).find('h3').text().trim();
-                const link = 'https://www.bbc.com' + $(el).find('a').attr('href');
-                const summary = $(el).find('p').text().trim();
+        // Seleciona os blocos de notícias com base no HTML atual
+        $('.promo-text').slice(0, 5).each((i, el) => {
+            const title = $(el).find('a').text().trim();
+            const link = $(el).find('a').attr('href').trim();
+            const summary = ''; // Caso encontre um resumo no HTML, pode adicionar aqui
 
-                news.push({
-                    title,
-                    summary,
-                    link,
-                });
-            }
+            news.push({ title, summary, link });
         });
 
         console.log(news);
@@ -57,15 +52,15 @@ async function sendEmail(news) {
 
     const htmlContent = news.map(n => `
         <h3>${n.title}</h3>
-        <p>${n.summary}</p>
+        ${n.summary ? `<p>${n.summary}</p>` : ''}
         <a href="${n.link}">Leia mais</a>
         <hr/>
     `).join('');
 
     try {
         const info = await transporter.sendMail({
-            from: `"Seu Nome" <${process.env.EMAIL_USER}>`,
-            to: 'user@gmail.com',
+            from: `"Ada - scraper de literatura" <${process.env.EMAIL_USER}>`,
+            to: 'usuario@gmail.com',
             subject: 'Últimas Notícias de Literatura - BBC Brasil',
             html: htmlContent,
         });
@@ -81,3 +76,5 @@ async function sendEmail(news) {
     const news = await fetchNews();
     await sendEmail(news);
 })();
+
+
